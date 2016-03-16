@@ -2,6 +2,7 @@
 
 extern crate libc;
 
+use std::u64;
 use libc::{c_uchar, c_uint, c_void, size_t, c_char};
 
 pub type lzma_bool = c_uchar;
@@ -44,6 +45,39 @@ pub const LZMA_MF_HC4: lzma_match_finder = 0x04;
 pub const LZMA_MF_BT2: lzma_match_finder = 0x12;
 pub const LZMA_MF_BT3: lzma_match_finder = 0x13;
 pub const LZMA_MF_BT4: lzma_match_finder = 0x14;
+
+pub const LZMA_TELL_NO_CHECK: u32 = 0x01;
+pub const LZMA_TELL_UNSUPPORTED_CHECK: u32 = 0x02;
+pub const LZMA_TELL_ANY_CHECK: u32 = 0x04;
+pub const LZMA_IGNORE_CHECK: u32 = 0x10;
+pub const LZMA_CONCATENATED: u32 = 0x08;
+
+pub const LZMA_PRESET_DEFAULT: u32 = 6;
+pub const LZMA_PRESET_LEVEL_MASK: u32 = 0x1f;
+pub const LZMA_PRESET_EXTREME: u32 = 1 << 31;
+
+pub const LZMA_FILTER_LZMA1: lzma_vli = 0x4000000000000001;
+pub const LZMA_FILTER_LZMA2: lzma_vli = 0x21;
+
+pub const LZMA_DICT_SIZE_MIN: u32 = 4096;
+pub const LZMA_DICT_SIZE_DEFAULT: u32 = 1 << 23;
+
+pub const LZMA_LCLP_MIN: u32 = 0;
+pub const LZMA_LCLP_MAX: u32 = 4;
+pub const LZMA_LC_DEFAULT: u32 = 3;
+
+pub const LZMA_LP_DEFAULT: u32 = 0;
+
+pub const LZMA_PB_MIN: u32 = 0;
+pub const LZMA_PB_MAX: u32 = 4;
+pub const LZMA_PB_DEFAULT: u32 = 2;
+
+pub const LZMA_BACKWARD_SIZE_MIN: lzma_vli = 4;
+pub const LZMA_BACKWARD_SIZE_MAX: lzma_vli = 1 << 34;
+
+pub const LZMA_VLI_MAX: lzma_vli = u64::MAX / 2;
+pub const LZMA_VLI_UNKNOWN: lzma_vli = u64::MAX;
+pub const LZMA_VLI_BYTES_MAX: usize = 9;
 
 #[repr(C)]
 pub struct lzma_allocator {
