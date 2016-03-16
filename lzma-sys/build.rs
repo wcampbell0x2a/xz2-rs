@@ -44,12 +44,22 @@ fn main() {
                    .replace("C:\\", "/c/")
                    .replace("\\", "/"));
         cmd.arg(format!("--prefix={}", dst.display()));
+        cmd.arg("--disable-doc");
+        cmd.arg("--disable-lzma-links");
+        cmd.arg("--disable-lzmainfo");
+        cmd.arg("--disable-lzmadec");
+        cmd.arg("--disable-xz");
+        cmd.arg("--disable-xzdec");
+        cmd.arg("--disable-shared");
+        cmd.arg("--disable-nls");
+        cmd.arg("--disable-rpath");
+        cmd.arg("--enable-threads=yes");
 
         run(&mut cmd);
         run(Command::new("make")
                     .arg(&format!("-j{}", env::var("NUM_JOBS").unwrap()))
                     .arg("install")
-                    .current_dir(&dst.join("build")));
+                    .current_dir(&dst.join("build/src/liblzma")));
     }
 }
 
