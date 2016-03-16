@@ -22,6 +22,7 @@ fn main() {
     println!("cargo:rustc-link-lib=static=lzma");
     println!("cargo:root={}", dst.display());
     println!("cargo:include={}/include", dst.display());
+    println!("cargo:rerun-if-changed=xz-5.2.2/configure");
 
     if target.contains("msvc") {
         panic!("msvc");
