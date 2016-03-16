@@ -22,3 +22,7 @@ notifications:
 os:
   - linux
   - osx
+addons:
+  apt:
+    packages:
+    - autotools
