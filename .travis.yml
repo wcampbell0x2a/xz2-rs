@@ -25,4 +25,4 @@ os:
 addons:
   apt:
     packages:
-    - autotools
+    - automake
