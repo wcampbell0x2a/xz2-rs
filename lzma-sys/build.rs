@@ -1,10 +1,13 @@
 extern crate gcc;
+extern crate filetime;
 
 use std::env;
 use std::ffi::OsString;
-use std::fs;
+use std::fs::{self, File};
 use std::path::{PathBuf, Path};
 use std::process::Command;
+
+use filetime::FileTime;
 
 macro_rules! t {
     ($e:expr) => (match $e {
@@ -40,6 +43,16 @@ fn main() {
                     dst.join("include/lzma.h")));
         cp_r(&build.join("src/liblzma/api/lzma"), &dst.join("include/lzma"));
     } else {
+        // Looks like xz-5.2.2's build system is super sensitive to mtimes, so
+        // if we just blindly use what's on the filesystem it's likely to try to
+        // run tons of automake junk or modify files in the build directory,
+        // neither of which we want.
+        //
+        // Work around this by just touching every file to the same time.
+        let meta = t!(Path::new("xz-5.2.2/configure").metadata());
+        let now = FileTime::from_last_modification_time(&meta);
+        set_all_mtime(Path::new("xz-5.2.2"), &now);
+
         println!("cargo:rustc-link-lib=static=lzma");
         let cfg = gcc::Config::new();
         let compiler = cfg.get_compiler();
@@ -65,14 +78,22 @@ fn main() {
         cmd.arg("--disable-lzmadec");
         cmd.arg("--disable-xz");
         cmd.arg("--disable-xzdec");
+        cmd.arg("--disable-scripts");
         cmd.arg("--disable-shared");
         cmd.arg("--disable-nls");
         cmd.arg("--disable-rpath");
-        cmd.arg("--enable-threads=yes");
+
+        if target.contains("windows") {
+            cmd.arg("--enable-threads=win32");
+        } else {
+            cmd.arg("--enable-threads=yes");
+        }
 
         run(&mut cmd);
         run(Command::new("make")
                     .arg(&format!("-j{}", env::var("NUM_JOBS").unwrap()))
+                    .current_dir(&dst.join("build")));
+        run(Command::new("make")
                     .arg("install")
                     .current_dir(&dst.join("build/src/liblzma")));
     }
@@ -92,6 +113,17 @@ fn cp_r(src: &Path, dst: &Path) {
             cp_r(&src, &dst);
         } else {
             t!(fs::copy(&src, &dst));
+        }
+    }
+}
+
+fn set_all_mtime(path: &Path, mtime: &FileTime) {
+    for e in t!(path.read_dir()).map(|e| t!(e)) {
+        let path = e.path();
+        if t!(e.file_type()).is_dir() {
+            set_all_mtime(&path, mtime);
+        } else {
+            t!(filetime::set_file_times(&path, *mtime, *mtime));
         }
     }
 }
