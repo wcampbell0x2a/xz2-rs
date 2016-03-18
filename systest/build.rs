@@ -9,5 +9,6 @@ fn main() {
     cfg.header("lzma.h");
     cfg.include(&out);
     cfg.type_name(|n, _s| n.to_string());
+    cfg.define("LZMA_API_STATIC", None);
     cfg.generate("../lzma-sys/src/lib.rs", "all.rs");
 }
