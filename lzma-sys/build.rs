@@ -34,6 +34,7 @@ fn main() {
         cp_r(Path::new("xz-5.2.2"), &build);
 
         run(msbuild.current_dir(build.join("windows"))
+                   .arg("liblzma.vcxproj")
                    .arg("/p:Configuration=Release"));
         t!(fs::create_dir(dst.join("lib")));
         t!(fs::create_dir(dst.join("include")));
