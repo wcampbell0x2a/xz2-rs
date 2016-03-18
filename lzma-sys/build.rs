@@ -72,7 +72,7 @@ fn main() {
            .arg(src.join("xz-5.2.2/configure").to_str().unwrap()
                    .replace("C:\\", "/c/")
                    .replace("\\", "/"));
-        cmd.arg(format!("--prefix={}", dst.display()));
+        cmd.arg(format!("--prefix={}", sanitize_sh(&dst)));
         cmd.arg("--disable-doc");
         cmd.arg("--disable-lzma-links");
         cmd.arg("--disable-lzmainfo");
@@ -126,5 +126,22 @@ fn set_all_mtime(path: &Path, mtime: &FileTime) {
         } else {
             t!(filetime::set_file_times(&path, *mtime, *mtime));
         }
+    }
+}
+
+fn sanitize_sh(path: &Path) -> String {
+    let path = path.to_str().unwrap().replace("\\", "/");
+    return change_drive(&path).unwrap_or(path);
+
+    fn change_drive(s: &str) -> Option<String> {
+        let mut ch = s.chars();
+        let drive = ch.next().unwrap_or('C');
+        if ch.next() != Some(':') {
+            return None
+        }
+        if ch.next() != Some('/') {
+            return None
+        }
+        Some(format!("/{}/{}", drive, &s[drive.len_utf8() + 2..]))
     }
 }
