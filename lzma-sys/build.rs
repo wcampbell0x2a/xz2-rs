@@ -85,7 +85,7 @@ fn main() {
         cmd.arg("--disable-rpath");
 
         if target.contains("windows") {
-            cmd.arg("--enable-threads=win32");
+            cmd.arg("--enable-threads=win95");
         } else {
             cmd.arg("--enable-threads=yes");
         }
