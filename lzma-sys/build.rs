@@ -3,7 +3,7 @@ extern crate filetime;
 
 use std::env;
 use std::ffi::OsString;
-use std::fs::{self, File};
+use std::fs;
 use std::path::{PathBuf, Path};
 use std::process::Command;
 
