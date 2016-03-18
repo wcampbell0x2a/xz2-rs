@@ -38,7 +38,7 @@ fn main() {
                    .arg("/p:Configuration=Release"));
         t!(fs::create_dir(dst.join("lib")));
         t!(fs::create_dir(dst.join("include")));
-        t!(fs::copy(build.join("windows/Release/Win32/liblzma.lib"),
+        t!(fs::copy(build.join("windows/Release/Win32/liblzma/liblzma.lib"),
                     dst.join("lib/liblzma.lib")));
         t!(fs::copy(build.join("src/liblzma/api/lzma.h"),
                     dst.join("include/lzma.h")));
