@@ -5,14 +5,20 @@ extern crate libc;
 use std::u64;
 use libc::{c_uchar, c_uint, c_void, size_t, c_char};
 
+#[cfg(target_env = "msvc")]
+#[doc(hidden)]
+pub type __enum_ty = libc::c_int;
+#[cfg(not(target_env = "msvc"))]
+#[doc(hidden)]
+pub type __enum_ty = libc::c_uint;
 pub type lzma_bool = c_uchar;
-pub type lzma_ret = c_uint;
-pub type lzma_action = c_uint;
-type lzma_reserved_enum = c_uint;
-pub type lzma_check = c_uint;
+pub type lzma_ret = __enum_ty;
+pub type lzma_action = __enum_ty;
+type lzma_reserved_enum = __enum_ty;
+pub type lzma_check = __enum_ty;
 pub type lzma_vli = u64;
-pub type lzma_mode = c_uint;
-pub type lzma_match_finder = c_uint;
+pub type lzma_mode = __enum_ty;
+pub type lzma_match_finder = __enum_ty;
 
 pub const LZMA_OK: lzma_ret = 0;
 pub const LZMA_STREAM_END: lzma_ret = 1;
