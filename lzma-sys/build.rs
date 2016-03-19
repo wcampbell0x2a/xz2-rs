@@ -31,6 +31,7 @@ fn main() {
         let mut msbuild = gcc::windows_registry::find(&target, "msbuild")
                               .expect("needs msbuild installed");
         let build = dst.join("build");
+        let _ = fs::remove_dir_all(&build);
         cp_r(Path::new("xz-5.2.2"), &build);
 
         run(msbuild.current_dir(build.join("windows"))
