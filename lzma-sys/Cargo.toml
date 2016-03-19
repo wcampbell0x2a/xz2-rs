@@ -9,5 +9,5 @@ links = "lzma"
 libc = "0.2"
 
 [build-dependencies]
-gcc = "0.3"
+gcc = { git = "https://github.com/alexcrichton/gcc-rs" }
 filetime = "*"
