@@ -201,20 +201,7 @@ pub struct lzma_stream_flags {
     reserved_int2: u32,
 }
 
-macro_rules! abi_compat {
-    ($(pub fn $name:ident($($arg:ident: $t:ty),*) $(-> $ret:ty)* ;)*) => {
-        #[cfg(target_env = "msvc")]
-        extern "system" {
-            $(pub fn $name($($arg: $t),*) $(-> $ret)* ;)*
-        }
-        #[cfg(not(target_env = "msvc"))]
-        extern {
-            $(pub fn $name($($arg: $t),*) $(-> $ret)* ;)*
-        }
-    }
-}
-
-abi_compat! {
+extern {
     pub fn lzma_code(strm: *mut lzma_stream,
                      action: lzma_action) -> lzma_ret;
     pub fn lzma_end(strm: *mut lzma_stream);
