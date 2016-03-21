@@ -140,6 +140,11 @@ pub enum Status {
     /// successfully.
     StreamEnd,
 
+    /// If the TELL_ANY_CHECK flags is specified when constructing a decoder,
+    /// this informs that the `check` method will now return the underlying
+    /// integrity check algorithm.
+    GetCheck,
+
     /// An error has not been encountered, but no progress is possible.
     ///
     /// Processing can be continued normally by providing more input and/or more
@@ -173,6 +178,14 @@ pub enum Error {
 
     /// A programming error was encountered.
     Program,
+
+    /// The `TELL_NO_CHECK` flag was specified and no integrity check was
+    /// available for this stream.
+    NoCheck,
+
+    /// The `TELL_UNSUPPORTED_CHECK` flag was specified and no integrity check
+    /// isn't implemented in this build of liblzma for this stream.
+    UnsupportedCheck,
 }
 
 /// Possible integrity checks that can be part of a .xz stream.
@@ -232,6 +245,27 @@ pub enum MatchFinder {
     BinaryTree4 = lzma_sys::LZMA_MF_BT4 as isize,
 }
 
+/// A flag passed when initializing a decoder, causes `process` to return
+/// `Status::GetCheck` as soon as the integrity check is known.
+pub const TELL_ANY_CHECK: u32 = lzma_sys::LZMA_TELL_ANY_CHECK;
+
+/// A flag passed when initializing a decoder, causes `process` to return
+/// `Error::NoCheck` if the stream being decoded has no integrity check.
+pub const TELL_NO_CHECK: u32 = lzma_sys::LZMA_TELL_NO_CHECK;
+
+/// A flag passed when initializing a decoder, causes `process` to return
+/// `Error::UnsupportedCheck` if the stream being decoded has an integrity check
+/// that cannot be verified by this build of liblzma.
+pub const TELL_UNSUPPORTED_CHECK: u32 = lzma_sys::LZMA_TELL_UNSUPPORTED_CHECK;
+
+/// A flag passed when initializing a decoder, causes the decoder to ignore any
+/// integrity checks listed.
+pub const IGNORE_CHECK: u32 = lzma_sys::LZMA_TELL_UNSUPPORTED_CHECK;
+
+/// A flag passed when initializing a decoder, indicates that the stream may be
+/// multiple concatenated xz files.
+pub const CONCATENATED: u32 = lzma_sys::LZMA_CONCATENATED;
+
 impl Stream {
     /// Initialize .xz stream encoder using a preset number
     ///
@@ -283,6 +317,46 @@ impl Stream {
             try!(cvt(lzma_sys::lzma_stream_encoder(&mut init.raw,
                                                    filters.inner.as_ptr(),
                                                    check as lzma_sys::lzma_check)));
+            Ok(init)
+        }
+    }
+
+    /// Initialize a .xz stream decoder.
+    ///
+    /// The maximum memory usage can be specified along with flags such as
+    /// `TELL_ANY_CHECK`, `TELL_NO_CHECK`, `TELL_UNSUPPORTED_CHECK`,
+    /// `TELL_IGNORE_CHECK`, or `CONCATENATED`.
+    pub fn new_stream_decoder(memlimit: u64,
+                              flags: u32) -> Result<Stream, Error> {
+        unsafe {
+            let mut init = Stream { raw: mem::zeroed() };
+            try!(cvt(lzma_sys::lzma_stream_decoder(&mut init.raw,
+                                                   memlimit,
+                                                   flags)));
+            Ok(init)
+        }
+    }
+
+    /// Initialize a .lzma stream decoder.
+    ///
+    /// The maximum memory usage can also be specified.
+    pub fn new_lzma_decoder(memlimit: u64) -> Result<Stream, Error> {
+        unsafe {
+            let mut init = Stream { raw: mem::zeroed() };
+            try!(cvt(lzma_sys::lzma_alone_decoder(&mut init.raw,
+                                                  memlimit)));
+            Ok(init)
+        }
+    }
+
+    /// Initialize a decoder which will choose a stream/lzma formats depending
+    /// on the input stream.
+    pub fn new_auto_decoder(memlimit: u64, flags: u32) -> Result<Stream, Error> {
+        unsafe {
+            let mut init = Stream { raw: mem::zeroed() };
+            try!(cvt(lzma_sys::lzma_auto_decoder(&mut init.raw,
+                                                 memlimit,
+                                                 flags)));
             Ok(init)
         }
     }
@@ -492,6 +566,16 @@ impl LzmaOptions {
     pub fn depth(&mut self, depth: u32) -> &mut LzmaOptions {
         self.raw.depth = depth;
         self
+    }
+}
+
+impl Check {
+    /// Test if this check is supported in this build of liblzma.
+    pub fn is_supported(&self) -> bool {
+        let ret = unsafe {
+            lzma_sys::lzma_check_is_supported(*self as lzma_sys::lzma_check)
+        };
+        ret != 0
     }
 }
 
@@ -719,9 +803,9 @@ fn cvt(rc: lzma_sys::lzma_ret) -> Result<Status, Error> {
     match rc {
         lzma_sys::LZMA_OK => Ok(Status::Ok),
         lzma_sys::LZMA_STREAM_END => Ok(Status::StreamEnd),
-        // lzma_sys::LZMA_NO_CHECK => Err(Error::NoCheck),
-        // lzma_sys::LZMA_UNSUPPORTED_CHECK => Err(Error::UnsupportedCheck),
-        // lzma_sys::LZMA_GET_CHECK => Err(Error::GetCheck),
+        lzma_sys::LZMA_NO_CHECK => Err(Error::NoCheck),
+        lzma_sys::LZMA_UNSUPPORTED_CHECK => Err(Error::UnsupportedCheck),
+        lzma_sys::LZMA_GET_CHECK => Ok(Status::GetCheck),
         lzma_sys::LZMA_MEM_ERROR => Err(Error::Mem),
         lzma_sys::LZMA_MEMLIMIT_ERROR => Err(Error::MemLimit),
         lzma_sys::LZMA_FORMAT_ERROR => Err(Error::Format),
