@@ -87,8 +87,6 @@ pub enum Action {
     /// `Status::StreamEnd`. Then continue normally with `Run` or finish the
     /// Stream with `Finish`.
     ///
-    /// TODO: wordsmith
-    ///
     /// This action is currently supported only by stream encoder and easy
     /// encoder (which uses stream encoder). If there is no unfinished block, no
     /// empty block is created.
@@ -107,11 +105,9 @@ pub enum Action {
     /// threads busy while `FullFlush` would make `process` wait until all the
     /// threads have finished until more data could be passed to the encoder.
     ///
-    /// TODO: wordsmith
-    ///
     /// With a `Stream` initialized with the single-threaded
-    /// lzma_stream_encoder() or lzma_easy_encoder(), LZMA_FULL_BARRIER is an
-    /// alias for LZMA_FULL_FLUSH.
+    /// `new_stream_encoder` or `new_easy_encoder`, `FullBarrier` is an alias
+    /// for `FullFlush`.
     FullBarrier = lzma_sys::LZMA_FULL_BARRIER as isize,
 
     /// Finish the current operation
