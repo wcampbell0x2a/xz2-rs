@@ -3,7 +3,7 @@
 extern crate libc;
 
 use std::u64;
-use libc::{c_uchar, c_uint, c_void, size_t, c_char};
+use libc::{c_uchar, c_void, size_t, c_char};
 
 #[cfg(target_env = "msvc")]
 #[doc(hidden)]
@@ -24,6 +24,7 @@ pub const LZMA_OK: lzma_ret = 0;
 pub const LZMA_STREAM_END: lzma_ret = 1;
 pub const LZMA_NO_CHECK: lzma_ret = 2;
 pub const LZMA_UNSUPPORTED_CHECK: lzma_ret = 3;
+pub const LZMA_GET_CHECK: lzma_ret = 4;
 pub const LZMA_MEM_ERROR: lzma_ret = 5;
 pub const LZMA_MEMLIMIT_ERROR: lzma_ret = 6;
 pub const LZMA_FORMAT_ERROR: lzma_ret = 7;
@@ -62,9 +63,6 @@ pub const LZMA_PRESET_DEFAULT: u32 = 6;
 pub const LZMA_PRESET_LEVEL_MASK: u32 = 0x1f;
 pub const LZMA_PRESET_EXTREME: u32 = 1 << 31;
 
-pub const LZMA_FILTER_LZMA1: lzma_vli = 0x4000000000000001;
-pub const LZMA_FILTER_LZMA2: lzma_vli = 0x21;
-
 pub const LZMA_DICT_SIZE_MIN: u32 = 4096;
 pub const LZMA_DICT_SIZE_DEFAULT: u32 = 1 << 23;
 
@@ -84,6 +82,15 @@ pub const LZMA_BACKWARD_SIZE_MAX: lzma_vli = 1 << 34;
 pub const LZMA_VLI_MAX: lzma_vli = u64::MAX / 2;
 pub const LZMA_VLI_UNKNOWN: lzma_vli = u64::MAX;
 pub const LZMA_VLI_BYTES_MAX: usize = 9;
+
+pub const LZMA_FILTER_X86: lzma_vli = 0x04;
+pub const LZMA_FILTER_POWERPC: lzma_vli = 0x05;
+pub const LZMA_FILTER_IA64: lzma_vli = 0x06;
+pub const LZMA_FILTER_ARM: lzma_vli = 0x07;
+pub const LZMA_FILTER_ARMTHUMB: lzma_vli = 0x08;
+pub const LZMA_FILTER_SPARC: lzma_vli = 0x09;
+pub const LZMA_FILTER_LZMA1: lzma_vli = 0x4000000000000001;
+pub const LZMA_FILTER_LZMA2: lzma_vli = 0x21;
 
 #[repr(C)]
 pub struct lzma_allocator {
@@ -151,6 +158,7 @@ pub struct lzma_mt {
 }
 
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct lzma_options_lzma {
     pub dict_size: u32,
     pub preset_dict: *const u8,
@@ -199,6 +207,11 @@ pub struct lzma_stream_flags {
     reserved_bool8: lzma_bool,
     reserved_int1: u32,
     reserved_int2: u32,
+}
+
+#[repr(C)]
+pub struct lzma_options_bcj {
+	pub start_offset: u32,
 }
 
 extern {
@@ -332,4 +345,9 @@ extern {
                            in_pos: *mut size_t,
                            in_size: size_t) -> lzma_ret;
     pub fn lzma_vli_size(vli: lzma_vli) -> u32;
+
+
+    pub fn lzma_lzma_preset(options: *mut lzma_options_lzma,
+                            preset: u32) -> lzma_bool;
+    pub fn lzma_mf_is_supported(mf: lzma_match_finder) -> lzma_bool;
 }

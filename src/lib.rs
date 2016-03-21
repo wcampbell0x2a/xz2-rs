@@ -1,6 +1,7 @@
-#[cfg(test)]
-mod test {
-    #[test]
-    fn it_works() {
-    }
-}
+//! TODO: dox
+
+#![deny(missing_docs)]
+
+extern crate lzma_sys;
+
+pub mod stream;
