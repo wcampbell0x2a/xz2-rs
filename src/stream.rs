@@ -7,6 +7,7 @@
 use std::collections::LinkedList;
 use std::error;
 use std::fmt;
+use std::io;
 use std::mem;
 use std::slice;
 
@@ -814,6 +815,12 @@ fn cvt(rc: lzma_sys::lzma_ret) -> Result<Status, Error> {
         lzma_sys::LZMA_BUF_ERROR => Ok(Status::MemNeeded),
         lzma_sys::LZMA_PROG_ERROR => Err(Error::Program),
         c => panic!("unknown return code: {}", c),
+    }
+}
+
+impl From<Error> for io::Error {
+    fn from(e: Error) -> io::Error {
+        io::Error::new(io::ErrorKind::Other, e)
     }
 }
 

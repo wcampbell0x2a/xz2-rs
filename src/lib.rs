@@ -8,5 +8,7 @@ extern crate lzma_sys;
 extern crate rand;
 
 pub mod stream;
+
 pub mod bufread;
 pub mod read;
+pub mod write;

@@ -173,9 +173,7 @@ impl<R: BufRead> Read for XzDecoder<R> {
             }
             self.obj.consume(consumed);
 
-            try!(ret.map_err(|e| {
-                io::Error::new(io::ErrorKind::InvalidInput, e)
-            }));
+            try!(ret);
             if read > 0 || eof || buf.len() == 0 {
                 return Ok(read)
             }
