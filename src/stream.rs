@@ -437,7 +437,7 @@ impl LzmaOptions {
         unsafe {
             let mut options = LzmaOptions { raw: mem::zeroed() };
             let ret = lzma_sys::lzma_lzma_preset(&mut options.raw, preset);
-            if ret == 0 {
+            if ret != 0 {
                 Err(Error::Program)
             } else {
                 Ok(options)
