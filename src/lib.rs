@@ -24,7 +24,7 @@
 //! ```
 
 #![deny(missing_docs, warnings)]
-#![doc(html_root_url = "http://alexcrichton.com/xz2-rs")]
+#![doc(html_root_url = "https://docs.rs/xz2/0.1")]
 
 extern crate lzma_sys;
 

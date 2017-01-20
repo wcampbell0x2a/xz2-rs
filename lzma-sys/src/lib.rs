@@ -1,4 +1,5 @@
 #![allow(bad_style)]
+#![doc(html_root_url = "https://docs.rs/lzma-sys/0.1")]
 
 extern crate libc;
 

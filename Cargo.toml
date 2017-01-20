@@ -7,11 +7,12 @@ readme = "README.md"
 keywords = ["lzma", "xz", "encoding"]
 repository = "https://github.com/alexcrichton/xz2-rs"
 homepage = "https://github.com/alexcrichton/xz2-rs"
-documentation = "http://alexcrichton.com/xz2-rs"
+documentation = "https://docs.rs/xz2"
 description = """
 Rust bindings to liblzma providing Read/Write streams as well as low-level
 in-memory encoding/decoding.
 """
+categories = ["compression", "api-bindings"]
 
 [dependencies]
 lzma-sys = { path = "lzma-sys", version = "0.1" }

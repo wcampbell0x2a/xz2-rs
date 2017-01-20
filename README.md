@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/alexcrichton/xz2-rs.svg?branch=master)](https://travis-ci.org/alexcrichton/xz2-rs)
 [![Build status](https://ci.appveyor.com/api/projects/status/5xx0bhg4cmm0qos7?svg=true)](https://ci.appveyor.com/project/alexcrichton/xz2-rs)
 
-[Documentation](http://alexcrichton.com/xz2-rs/xz2/index.html)
+[Documentation](https://docs.rs/xz2)
 
 Bindings to the liblzma implementation in Rust, also provides types to
 read/write xz streams.
