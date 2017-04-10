@@ -154,6 +154,16 @@ impl<W: Write> XzDecoder<W> {
             try!(self.dump());
             let res = try!(self.data.process_vec(&[], &mut self.buf,
                                                  Action::Run));
+
+            // When decoding a truncated file, XZ returns LZMA_BUF_ERROR and decodes no new data,
+            // which corresponds to this crate's MemNeeded status.
+            // Since we're finishing, we cannot provide more data so this is an error. 
+            //
+            // See the 02_decompress.c example in xz-utils.
+            if self.buf.is_empty() && res == Status::MemNeeded {
+                return Err(io::Error::new(io::ErrorKind::UnexpectedEof, "xz compressed stream is truncated or otherwise corrupt"));
+            }
+
             if res == Status::StreamEnd {
                 break
             }
