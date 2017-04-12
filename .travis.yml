@@ -8,6 +8,7 @@ before_script:
   - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
 script:
   - cargo test
+  - cargo test --features tokio
   - cargo run --manifest-path systest/Cargo.toml
   - cargo doc --no-deps
   - cargo doc --no-deps --manifest-path=lzma-sys/Cargo.toml

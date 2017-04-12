@@ -3,13 +3,18 @@
 use std::io::prelude::*;
 use std::io;
 
+#[cfg(feature = "tokio")]
+use futures::Poll;
+#[cfg(feature = "tokio")]
+use tokio_io::{AsyncRead, AsyncWrite};
+
 use stream::{Stream, Check, Action};
 
 /// An xz encoder, or compressor.
 ///
 /// This structure implements a `BufRead` interface and will read uncompressed
 /// data from an underlying stream and emit a stream of compressed data.
-pub struct XzEncoder<R: BufRead> {
+pub struct XzEncoder<R> {
     obj: R,
     data: Stream,
 }
@@ -18,7 +23,7 @@ pub struct XzEncoder<R: BufRead> {
 ///
 /// This structure implements a `BufRead` interface and takes a stream of
 /// compressed data as input, providing the decompressed data when read from.
-pub struct XzDecoder<R: BufRead> {
+pub struct XzDecoder<R> {
     obj: R,
     data: Stream,
 }
@@ -43,7 +48,9 @@ impl<R: BufRead> XzEncoder<R> {
             data: stream,
         }
     }
+}
 
+impl<R> XzEncoder<R> {
     /// Acquires a reference to the underlying stream
     pub fn get_ref(&self) -> &R {
         &self.obj
@@ -81,6 +88,7 @@ impl<R: BufRead> XzEncoder<R> {
         self.data.total_in()
     }
 }
+
 impl<R: BufRead> Read for XzEncoder<R> {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         loop {
@@ -110,6 +118,27 @@ impl<R: BufRead> Read for XzEncoder<R> {
     }
 }
 
+#[cfg(feature = "tokio")]
+impl<R: AsyncRead + BufRead> AsyncRead for XzEncoder<R> {
+}
+
+impl<W: Write> Write for XzEncoder<W> {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        self.get_mut().write(buf)
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        self.get_mut().flush()
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl<R: AsyncWrite> AsyncWrite for XzEncoder<R> {
+    fn shutdown(&mut self) -> Poll<(), io::Error> {
+        self.get_mut().shutdown()
+    }
+}
+
 impl<R: BufRead> XzDecoder<R> {
     /// Creates a new decoder which will decompress data read from the given
     /// stream.
@@ -125,7 +154,9 @@ impl<R: BufRead> XzDecoder<R> {
     pub fn new_stream(r: R, stream: Stream) -> XzDecoder<R> {
         XzDecoder { obj: r, data: stream }
     }
+}
 
+impl<R> XzDecoder<R> {
     /// Acquires a reference to the underlying stream
     pub fn get_ref(&self) -> &R {
         &self.obj
@@ -181,3 +212,23 @@ impl<R: BufRead> Read for XzDecoder<R> {
     }
 }
 
+#[cfg(feature = "tokio")]
+impl<R: AsyncRead + BufRead> AsyncRead for XzDecoder<R> {
+}
+
+impl<W: Write> Write for XzDecoder<W> {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        self.get_mut().write(buf)
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        self.get_mut().flush()
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl<R: AsyncWrite> AsyncWrite for XzDecoder<R> {
+    fn shutdown(&mut self) -> Poll<(), io::Error> {
+        self.get_mut().shutdown()
+    }
+}

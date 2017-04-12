@@ -3,6 +3,11 @@
 use std::io::prelude::*;
 use std::io;
 
+#[cfg(feature = "tokio")]
+use futures::Poll;
+#[cfg(feature = "tokio")]
+use tokio_io::{AsyncRead, AsyncWrite};
+
 use stream::{Action, Status, Stream, Check};
 
 /// A compression stream which will have uncompressed data written to it and
@@ -39,15 +44,38 @@ impl<W: Write> XzEncoder<W> {
         }
     }
 
+    /// Acquires a reference to the underlying writer.
+    pub fn get_ref(&self) -> &W {
+        self.obj.as_ref().unwrap()
+    }
+
+    /// Acquires a mutable reference to the underlying writer.
+    ///
+    /// Note that mutating the output/input state of the stream may corrupt this
+    /// object, so care must be taken when using this method.
+    pub fn get_mut(&mut self) -> &mut W {
+        self.obj.as_mut().unwrap()
+    }
+
     fn dump(&mut self) -> io::Result<()> {
-        if self.buf.len() > 0 {
-            try!(self.obj.as_mut().unwrap().write_all(&self.buf));
-            self.buf.truncate(0);
+        while self.buf.len() > 0 {
+            let n = try!(self.obj.as_mut().unwrap().write(&self.buf));
+            self.buf.drain(..n);
         }
         Ok(())
     }
 
-    fn do_finish(&mut self) -> io::Result<()> {
+    /// Attempt to finish this output stream, writing out final chunks of data.
+    ///
+    /// Note that this function can only be used once data has finished being
+    /// written to the output stream. After this function is called then further
+    /// calls to `write` may result in a panic.
+    ///
+    /// # Panics
+    ///
+    /// Attempts to write data to this stream may result in a panic after this
+    /// function is called.
+    pub fn try_finish(&mut self) -> io::Result<()> {
         loop {
             try!(self.dump());
             let res = try!(self.data.process_vec(&[], &mut self.buf, Action::Finish));
@@ -62,8 +90,14 @@ impl<W: Write> XzEncoder<W> {
     ///
     /// This will flush the underlying data stream and then return the contained
     /// writer if the flush succeeded.
+    ///
+    /// Note that this function may not be suitable to call in a situation where
+    /// the underlying stream is an asynchronous I/O stream. To finish a stream
+    /// the `try_finish` (or `shutdown`) method should be used instead. To
+    /// re-acquire ownership of a stream it is safe to call this method after
+    /// `try_finish` or `shutdown` has returned `Ok`.
     pub fn finish(mut self) -> io::Result<W> {
-        try!(self.do_finish());
+        try!(self.try_finish());
         Ok(self.obj.take().unwrap())
     }
 
@@ -112,10 +146,28 @@ impl<W: Write> Write for XzEncoder<W> {
     }
 }
 
+#[cfg(feature = "tokio")]
+impl<W: AsyncWrite> AsyncWrite for XzEncoder<W> {
+    fn shutdown(&mut self) -> Poll<(), io::Error> {
+        try_nb!(self.try_finish());
+        self.get_mut().shutdown()
+    }
+}
+
+impl<W: Read + Write> Read for XzEncoder<W> {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        self.get_mut().read(buf)
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl<W: AsyncRead + AsyncWrite> AsyncRead for XzEncoder<W> {
+}
+
 impl<W: Write> Drop for XzEncoder<W> {
     fn drop(&mut self) {
         if self.obj.is_some() {
-            let _ = self.do_finish();
+            let _ = self.try_finish();
         }
     }
 }
@@ -141,6 +193,19 @@ impl<W: Write> XzDecoder<W> {
         }
     }
 
+    /// Acquires a reference to the underlying writer.
+    pub fn get_ref(&self) -> &W {
+        self.obj.as_ref().unwrap()
+    }
+
+    /// Acquires a mutable reference to the underlying writer.
+    ///
+    /// Note that mutating the output/input state of the stream may corrupt this
+    /// object, so care must be taken when using this method.
+    pub fn get_mut(&mut self) -> &mut W {
+        self.obj.as_mut().unwrap()
+    }
+
     fn dump(&mut self) -> io::Result<()> {
         if self.buf.len() > 0 {
             try!(self.obj.as_mut().unwrap().write_all(&self.buf));
@@ -149,7 +214,7 @@ impl<W: Write> XzDecoder<W> {
         Ok(())
     }
 
-    fn do_finish(&mut self) -> io::Result<()> {
+    fn try_finish(&mut self) -> io::Result<()> {
         loop {
             try!(self.dump());
             let res = try!(self.data.process_vec(&[], &mut self.buf,
@@ -176,7 +241,7 @@ impl<W: Write> XzDecoder<W> {
 
     /// Unwrap the underlying writer, finishing the compression stream.
     pub fn finish(&mut self) -> io::Result<W> {
-        try!(self.do_finish());
+        try!(self.try_finish());
         Ok(self.obj.take().unwrap())
     }
 
@@ -218,10 +283,28 @@ impl<W: Write> Write for XzDecoder<W> {
     }
 }
 
+#[cfg(feature = "tokio")]
+impl<W: AsyncWrite> AsyncWrite for XzDecoder<W> {
+    fn shutdown(&mut self) -> Poll<(), io::Error> {
+        try_nb!(self.try_finish());
+        self.get_mut().shutdown()
+    }
+}
+
+impl<W: Read + Write> Read for XzDecoder<W> {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        self.get_mut().read(buf)
+    }
+}
+
+#[cfg(feature = "tokio")]
+impl<W: AsyncRead + AsyncWrite> AsyncRead for XzDecoder<W> {
+}
+
 impl<W: Write> Drop for XzDecoder<W> {
     fn drop(&mut self) {
         if self.obj.is_some() {
-            let _ = self.do_finish();
+            let _ = self.try_finish();
         }
     }
 }
