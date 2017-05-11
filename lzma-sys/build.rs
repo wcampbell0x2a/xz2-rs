@@ -25,7 +25,8 @@ fn main() {
     println!("cargo:root={}", dst.display());
     println!("cargo:include={}/include", dst.display());
     println!("cargo:rerun-if-changed=xz-5.2.2/configure");
-
+    let features = env::var("CARGO_CFG_TARGET_FEATURE")
+                        .unwrap_or(String::new());
     if target.contains("msvc") {
         println!("cargo:rustc-link-lib=static=liblzma");
         let mut msbuild = gcc::windows_registry::find(&target, "msbuild")
@@ -36,13 +37,20 @@ fn main() {
         let _ = fs::remove_dir_all(dst.join("include"));
         cp_r(Path::new("xz-5.2.2"), &build);
 
+        let profile = if features.contains("crt-static") {
+            "ReleaseMT"
+        } else {
+            "Release"
+        };
+
         run(msbuild.current_dir(build.join("windows"))
                    .arg("liblzma.vcxproj")
-                   .arg("/p:Configuration=Release"));
+                   .arg(&format!("/p:Configuration={}", profile)));
         t!(fs::create_dir(dst.join("lib")));
         t!(fs::create_dir(dst.join("include")));
         let platform = if target.contains("x86_64") {"X64"} else {"Win32"};
-        t!(fs::copy(build.join("windows/Release")
+        t!(fs::copy(build.join("windows")
+                         .join(profile)
                          .join(platform)
                          .join("liblzma/liblzma.lib"),
                     dst.join("lib/liblzma.lib")));
