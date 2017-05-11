@@ -18,6 +18,7 @@ macro_rules! t {
 
 fn main() {
     let target = env::var("TARGET").unwrap();
+    let host = env::var("HOST").unwrap();
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     let src = t!(env::current_dir());
 
@@ -83,9 +84,7 @@ fn main() {
         cmd.env("CC", compiler.path())
            .env("CFLAGS", cflags)
            .current_dir(&dst.join("build"))
-           .arg(src.join("xz-5.2.2/configure").to_str().unwrap()
-                   .replace("C:\\", "/c/")
-                   .replace("\\", "/"));
+           .arg(sanitize_sh(&src.join("xz-5.2.2/configure")));
         cmd.arg(format!("--prefix={}", sanitize_sh(&dst)));
         cmd.arg("--disable-doc");
         cmd.arg("--disable-lzma-links");
@@ -102,6 +101,24 @@ fn main() {
             cmd.arg("--enable-threads=win95");
         } else {
             cmd.arg("--enable-threads=yes");
+        }
+
+        if target != host &&
+           (!target.contains("windows") || !host.contains("windows")) {
+            // NOTE GNU terminology
+            // BUILD = machine where we are (cross) compiling curl
+            // HOST = machine where the compiled curl will be used
+            // TARGET = only relevant when compiling compilers
+            if target.contains("windows") {
+                // curl's configure can't parse `-windows-` triples when used
+                // as `--host`s. In those cases we use this combination of
+                // `host` and `target` that appears to do the right thing.
+                cmd.arg(format!("--host={}", host));
+                cmd.arg(format!("--target={}", target));
+            } else {
+                cmd.arg(format!("--build={}", host));
+                cmd.arg(format!("--host={}", target));
+            }
         }
 
         run(&mut cmd);
