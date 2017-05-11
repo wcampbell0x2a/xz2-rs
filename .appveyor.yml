@@ -1,5 +1,7 @@
 environment:
   matrix:
+  - TARGET: x86_64-pc-windows-msvc
+    RUSTFLAGS: -Zunstable-options -Ctarget-feature=+crt-static
   - TARGET: x86_64-pc-windows-gnu
     MSYS_BITS: 64
   - TARGET: i686-pc-windows-gnu
@@ -7,9 +9,10 @@ environment:
   - TARGET: x86_64-pc-windows-msvc
   - TARGET: i686-pc-windows-msvc
 install:
-  - ps: Start-FileDownload "https://static.rust-lang.org/dist/rust-nightly-${env:TARGET}.exe"
-  - rust-nightly-%TARGET%.exe /VERYSILENT /NORESTART /DIR="C:\Program Files (x86)\Rust"
-  - set PATH=%PATH%;C:\Program Files (x86)\Rust\bin
+  - appveyor-retry appveyor DownloadFile https://win.rustup.rs/ -FileName rustup-init.exe
+  - rustup-init.exe -y --default-host x86_64-pc-windows-msvc --default-toolchain nightly
+  - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
+  - if NOT "%TARGET%" == "x86_64-pc-windows-msvc" rustup target add %TARGET%
   - if defined MSYS_BITS set PATH=C:\msys64\mingw%MSYS_BITS%\bin;C:\msys64\usr\bin;%PATH%
   - rustc -V
   - cargo -V
