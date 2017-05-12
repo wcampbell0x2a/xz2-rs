@@ -20,7 +20,6 @@ fn main() {
     let target = env::var("TARGET").unwrap();
     let host = env::var("HOST").unwrap();
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
-    let src = t!(env::current_dir());
 
     println!("cargo:rustc-link-search={}/lib", dst.display());
     println!("cargo:root={}", dst.display());
@@ -65,9 +64,11 @@ fn main() {
         // neither of which we want.
         //
         // Work around this by just touching every file to the same time.
-        let meta = t!(Path::new("xz-5.2.2/configure").metadata());
+        let src = dst.join("src");
+        cp_r(Path::new("xz-5.2.2"), &src);
+        let meta = t!(src.join("configure").metadata());
         let now = FileTime::from_last_modification_time(&meta);
-        set_all_mtime(Path::new("xz-5.2.2"), &now);
+        set_all_mtime(&src, &now);
 
         println!("cargo:rustc-link-lib=static=lzma");
         let cfg = gcc::Config::new();
@@ -84,7 +85,7 @@ fn main() {
         cmd.env("CC", compiler.path())
            .env("CFLAGS", cflags)
            .current_dir(&dst.join("build"))
-           .arg(sanitize_sh(&src.join("xz-5.2.2/configure")));
+           .arg(sanitize_sh(&src.join("configure")));
         cmd.arg(format!("--prefix={}", sanitize_sh(&dst)));
         cmd.arg("--disable-doc");
         cmd.arg("--disable-lzma-links");
