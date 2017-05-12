@@ -24,7 +24,7 @@ fn main() {
     println!("cargo:rustc-link-search={}/lib", dst.display());
     println!("cargo:root={}", dst.display());
     println!("cargo:include={}/include", dst.display());
-    println!("cargo:rerun-if-changed=xz-5.2.2/configure");
+    println!("cargo:rerun-if-changed=xz-5.2.3/configure");
     let features = env::var("CARGO_CFG_TARGET_FEATURE")
                         .unwrap_or(String::new());
     if target.contains("msvc") {
@@ -35,7 +35,7 @@ fn main() {
         let _ = fs::remove_dir_all(&build);
         let _ = fs::remove_dir_all(dst.join("lib"));
         let _ = fs::remove_dir_all(dst.join("include"));
-        cp_r(Path::new("xz-5.2.2"), &build);
+        cp_r(Path::new("xz-5.2.3"), &build);
 
         let profile = if features.contains("crt-static") {
             "ReleaseMT"
@@ -65,7 +65,8 @@ fn main() {
         //
         // Work around this by just touching every file to the same time.
         let src = dst.join("src");
-        cp_r(Path::new("xz-5.2.2"), &src);
+        drop(fs::remove_dir_all(&src));
+        cp_r(Path::new("xz-5.2.3"), &src);
         let meta = t!(src.join("configure").metadata());
         let now = FileTime::from_last_modification_time(&meta);
         set_all_mtime(&src, &now);
