@@ -127,6 +127,8 @@ fn main() {
         run(Command::new("make")
                     .arg(&format!("-j{}", env::var("NUM_JOBS").unwrap()))
                     .current_dir(&dst.join("build")));
+        // Unset DESTDIR or liblzma.a ends up in it and cargo can't find it
+        env::remove_var("DESTDIR");
         run(Command::new("make")
                     .arg("install")
                     .current_dir(&dst.join("build/src/liblzma")));
