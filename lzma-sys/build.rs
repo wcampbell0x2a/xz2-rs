@@ -42,7 +42,7 @@ fn main() {
         };
 
         let mut build_succeeded = false;
-        for platform_toolset in &["v150", "v140", "v120", "v110"] {
+        for platform_toolset in &["v141", "v140", "v120", "v110"] {
             let mut msbuild = gcc::windows_registry::find(&target, "msbuild")
                     .expect("needs msbuild installed");
             if try_run(msbuild.current_dir(build.join("windows"))
