@@ -133,19 +133,26 @@ fn main() {
         }
 
         run(&mut cmd);
-        run(make()
+        run(make(&host)
                     .arg(&format!("-j{}", env::var("NUM_JOBS").unwrap()))
                     .current_dir(&dst.join("build")));
         // Unset DESTDIR or liblzma.a ends up in it and cargo can't find it
         env::remove_var("DESTDIR");
-        run(make()
+        run(make(&host)
                     .arg("install")
                     .current_dir(&dst.join("build/src/liblzma")));
     }
 }
 
-fn make() -> Command {
-    let mut cmd = Command::new("make");
+fn make(host: &String) -> Command {
+    let mut cmd = if host.contains("bitrig") || host.contains("dragonfly") ||
+        host.contains("freebsd") || host.contains("netbsd") ||
+        host.contains("openbsd") {
+
+        Command::new("gmake")
+    } else {
+        Command::new("make")
+    };
 
     // We're using the MSYS make which doesn't work with the mingw32-make-style
     // MAKEFLAGS, so remove that from the env if present.
