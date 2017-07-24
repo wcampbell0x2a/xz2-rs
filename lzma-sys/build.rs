@@ -147,7 +147,7 @@ fn main() {
 fn make(host: &String) -> Command {
     let mut cmd = if host.contains("bitrig") || host.contains("dragonfly") ||
         host.contains("freebsd") || host.contains("netbsd") ||
-        host.contains("openbsd") {
+        host.contains("openbsd") || host.contains("solaris") {
 
         Command::new("gmake")
     } else {
