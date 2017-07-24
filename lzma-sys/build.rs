@@ -137,7 +137,10 @@ fn main() {
                     .arg(&format!("-j{}", env::var("NUM_JOBS").unwrap()))
                     .current_dir(&dst.join("build")));
         // Unset DESTDIR or liblzma.a ends up in it and cargo can't find it
+        // MAKEFLAGS may also contain DESTDIR (from 'make install DESTDIR=...')
+        // so we should get rid of that as well
         env::remove_var("DESTDIR");
+        env::remove_var("MAKEFLAGS");
         run(make(&host)
                     .arg("install")
                     .current_dir(&dst.join("build/src/liblzma")));
@@ -147,7 +150,7 @@ fn main() {
 fn make(host: &String) -> Command {
     let mut cmd = if host.contains("bitrig") || host.contains("dragonfly") ||
         host.contains("freebsd") || host.contains("netbsd") ||
-        host.contains("openbsd") {
+        host.contains("openbsd") || host.contains("solaris") {
 
         Command::new("gmake")
     } else {
