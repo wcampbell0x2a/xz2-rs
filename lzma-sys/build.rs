@@ -1,5 +1,6 @@
 extern crate gcc;
 extern crate filetime;
+extern crate pkg_config;
 
 use std::env;
 use std::ffi::OsString;
@@ -20,6 +21,12 @@ fn main() {
     let target = env::var("TARGET").unwrap();
     let host = env::var("HOST").unwrap();
     let dst = PathBuf::from(env::var_os("OUT_DIR").unwrap());
+
+    println!("cargo:rerun-if-env-changed=LZMA_API_STATIC");
+    let want_static = env::var("LZMA_API_STATIC").is_ok();
+    if !want_static && pkg_config::probe_library("liblzma").is_ok() {
+        return;
+    }
 
     println!("cargo:rustc-link-search={}/lib", dst.display());
     println!("cargo:root={}", dst.display());
