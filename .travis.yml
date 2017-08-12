@@ -4,6 +4,26 @@ rust:
   - beta
   - nightly
 sudo: false
+matrix:
+  include:
+    - os: osx
+      rust: stable
+      before_install:
+        - brew install xz
+    
+    - os: osx
+      env: LZMA_API_STATIC=1
+      rust: stable
+      before_install:
+        - brew install xz
+
+    - os: linux
+      rust: stable
+      addons:
+        apt:
+          packages:
+          - xz-lzma
+
 before_script:
   - pip install 'travis-cargo<0.2' --user && export PATH=$HOME/.local/bin:$PATH
 script:
