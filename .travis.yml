@@ -21,7 +21,7 @@ matrix:
     - addons:
         apt:
           packages:
-          - xz-lzma
+          - lzma-dev
 
 script:
   - cargo test
