@@ -22,6 +22,9 @@ matrix:
         apt:
           packages:
           - lzma-dev
+      script:
+        - cargo test
+        - cargo test --features tokio
 
 script:
   - cargo test
