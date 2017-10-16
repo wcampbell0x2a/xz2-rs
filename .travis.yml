@@ -3,9 +3,6 @@ sudo: false
 matrix:
   include:
     - os: osx
-    - os: osx
-      before_install:
-        - brew install xz
 
     - rust: stable
       env: LZMA_API_STATIC=1
