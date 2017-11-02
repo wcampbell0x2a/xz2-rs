@@ -6,6 +6,7 @@ use std::path::Path;
 
 use xz2::read;
 use xz2::write;
+use xz2::stream;
 
 #[test]
 fn standard_files() {
@@ -57,4 +58,15 @@ fn test_bad(data: &[u8]) {
     assert!(read::XzDecoder::new(data).read_to_end(&mut ret).is_err());
     let mut w = write::XzDecoder::new(ret);
     assert!(w.write_all(data).is_err() || w.finish().is_err());
+}
+
+fn assert_send_sync<T: Send + Sync>() { }
+
+#[test]
+fn impls_send_and_sync() {
+    assert_send_sync::<stream::Stream>();
+    assert_send_sync::<read::XzDecoder<&[u8]>>();
+    assert_send_sync::<read::XzEncoder<&[u8]>>();
+    assert_send_sync::<write::XzEncoder<&mut [u8]>>();
+    assert_send_sync::<write::XzDecoder<&mut [u8]>>();
 }
