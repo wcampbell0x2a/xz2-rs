@@ -1,10 +1,17 @@
+image:
+  - Visual Studio 2015
+  - Visual Studio 2017
+
 environment:
   matrix:
   - TARGET: x86_64-pc-windows-msvc
     RUSTFLAGS: -Zunstable-options -Ctarget-feature=+crt-static
   - TARGET: x86_64-pc-windows-msvc
   - TARGET: i686-pc-windows-msvc
+
 install:
+  # Appveyor does not automatically checkout submodules
+  - git submodule update --init --recursive
   - appveyor-retry appveyor DownloadFile https://win.rustup.rs/ -FileName rustup-init.exe
   - rustup-init.exe -y --default-host x86_64-pc-windows-msvc --default-toolchain nightly
   - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
