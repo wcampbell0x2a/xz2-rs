@@ -32,7 +32,7 @@
 #define HAVE_MF_HC4 1
 
 #ifdef _MSC_VER
-    // change to `MYTHREAD_WIN95` if building on Windows XP or earlier
+    // change to `MYTHREAD_WIN95` if targeting Windows XP or earlier
     #define MYTHREAD_VISTA 1
 #else
     #define _POSIX_C_SOURCE 199506L
