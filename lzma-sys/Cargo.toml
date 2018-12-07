@@ -17,8 +17,8 @@ High level Rust bindings are available in the `xz2` crate.
 categories = ["external-ffi-bindings"]
 
 [dependencies]
-libc = "0.2"
+libc = "0.2.43"
 
 [build-dependencies]
-cc = "1.0"
-pkg-config = "0.3"
+cc = "1.0.24"
+pkg-config = "0.3.14"
