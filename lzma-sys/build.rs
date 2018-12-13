@@ -5,9 +5,7 @@ use std::env;
 use std::fs;
 use std::path::PathBuf;
 
-const SKIP_FILENAMES: &[&str] = &[
-    "crc32_small", "crc64_small"
-];
+const SKIP_FILENAMES: &[&str] = &["crc32_small", "crc64_small"];
 
 fn main() {
     let target = env::var("TARGET").unwrap();
@@ -29,14 +27,18 @@ fn main() {
         "xz-5.2/src/liblzma/delta",
         "xz-5.2/src/liblzma/rangecoder",
         "xz-5.2/src/liblzma/simple",
-    ].iter().flat_map(|dir| read_dir_files(dir)).chain(vec![
+    ]
+    .iter()
+    .flat_map(|dir| read_dir_files(dir))
+    .chain(vec![
         "xz-5.2/src/common/tuklib_cpucores.c".into(),
-        "xz-5.2/src/common/tuklib_physmem.c".into()
+        "xz-5.2/src/common/tuklib_physmem.c".into(),
     ]);
 
     let mut build = cc::Build::new();
 
-    build.files(src_files)
+    build
+        .files(src_files)
         // all C preproc defines are in `./config.h`
         .define("HAVE_CONFIG_H", "1")
         .include("xz-5.2/src/liblzma/api")
@@ -50,15 +52,14 @@ fn main() {
         .include("xz-5.2/src/common")
         .include("./");
 
-    if !target.ends_with("msvc")  {
-        build.flag("-std=c99")
-            .flag("-pthread");
+    if !target.ends_with("msvc") {
+        build.flag("-std=c99").flag("-pthread");
     }
 
     build.compile("liblzma.a");
 }
 
-fn read_dir_files(dir: &str) -> impl Iterator<Item=PathBuf> {
+fn read_dir_files(dir: &str) -> impl Iterator<Item = PathBuf> {
     fs::read_dir(dir)
         .expect(&format!("failed to read dir {}", dir))
         .filter_map(|ent| {
@@ -76,8 +77,12 @@ fn read_dir_files(dir: &str) -> impl Iterator<Item=PathBuf> {
 
             {
                 let file_stem = path.file_stem().unwrap().to_str().unwrap();
-                if SKIP_FILENAMES.contains(&file_stem) { return None }
-                if file_stem.ends_with("tablegen") { return None }
+                if SKIP_FILENAMES.contains(&file_stem) {
+                    return None;
+                }
+                if file_stem.ends_with("tablegen") {
+                    return None;
+                }
             }
 
             Some(path)
