@@ -31,7 +31,7 @@
 #define HAVE_MF_HC3 1
 #define HAVE_MF_HC4 1
 
-#ifdef _MSC_VER
+#if defined(MSC_VER) || defined(WIN32) || defined(WIN64) || defined(_WIN32)
     // change to `MYTHREAD_WIN95` if targeting Windows XP or earlier
     #define MYTHREAD_VISTA 1
 #else
