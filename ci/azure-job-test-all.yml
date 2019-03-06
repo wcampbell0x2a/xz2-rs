@@ -1,0 +1,11 @@
+steps:
+  - template: azure-install-rust.yml
+  - checkout: self
+    submodules: true
+  - script: cargo test
+    displayName: "Run crate tests"
+  - script: cargo test --features tokio
+    displayName: "Run crate tests (tokio feature)"
+  - script: cargo run --manifest-path systest/Cargo.toml
+    displayName: "Verify FFI bindings"
+    condition: eq( variables['LZMA_API_STATIC'], '1')

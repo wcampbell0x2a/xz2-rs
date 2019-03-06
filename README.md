@@ -1,7 +1,6 @@
 # xz2
 
-[![Build Status](https://travis-ci.org/alexcrichton/xz2-rs.svg?branch=master)](https://travis-ci.org/alexcrichton/xz2-rs)
-[![Build status](https://ci.appveyor.com/api/projects/status/5xx0bhg4cmm0qos7?svg=true)](https://ci.appveyor.com/project/alexcrichton/xz2-rs)
+[![Build Status](https://dev.azure.com/alexcrichton/xz2-rs/_apis/build/status/alexcrichton.xz2-rs?branchName=master)](https://dev.azure.com/alexcrichton/xz2-rs/_build/latest?definitionId=3&branchName=master)
 
 [Documentation](https://docs.rs/xz2)
 
