@@ -1,0 +1,69 @@
+trigger:
+  - master
+
+jobs:
+  - job: Linux
+    pool:
+      vmImage: ubuntu-16.04
+    steps:
+      - template: ci/azure-job-test-all.yml
+    strategy:
+      matrix:
+        stable:
+          TOOLCHAIN: stable
+        stable-static:
+          TOOLCHAIN: stable
+          LZMA_API_STATIC: 1
+        beta:
+          TOOLCHAIN: beta
+        nightly:
+          TOOLCHAIN: nightly
+
+  - job: macOS
+    pool:
+      vmImage: macOS-10.13
+    steps:
+      - template: ci/azure-job-test-all.yml
+    strategy:
+      matrix:
+        stable:
+          TOOLCHAIN: stable
+        stable-static:
+          TOOLCHAIN: stable
+          LZMA_API_STATIC: 1
+
+  - job: Windows
+    pool:
+      vmImage: vs2017-win2016
+    steps:
+      - template: ci/azure-job-test-all.yml
+    strategy:
+      matrix:
+        i686-msvc:
+          TOOLCHAIN: stable-i686-msvc
+        x86_64-msvc:
+          TOOLCHAIN: stable-x86_64-msvc
+        x86_64-msvc-static:
+          TOOLCHAIN: stable-x86_64-msvc
+          LZMA_API_STATIC: 1
+        x86_64-msvc-crt-static:
+          TOOLCHAIN: stable-x86_64-msvc
+          RUSTFLAGS: -Ctarget-feature=+crt-static
+        i686-gnu:
+          TOOLCHAIN: stable-i686-gnu
+        x86_64-gnu:
+          TOOLCHAIN: stable-x86_64-gnu
+
+  - job: docs
+    strategy:
+      matrix:
+        stable:
+          TOOLCHAIN: stable
+    steps:
+      - template: ci/azure-install-rust.yml
+      - script: cargo doc --no-deps --all-features
+      - script: cargo doc --no-deps --all-features --manifest-path lzma-sys/Cargo.toml
+      - script: curl -LsSf https://git.io/fhJ8n | rustc - && (cd target/doc && ../../rust_out)
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+        env:
+          GITHUB_DEPLOY_KEY: $(GITHUB_DEPLOY_KEY)
