@@ -9,7 +9,7 @@ use futures::Poll;
 #[cfg(feature = "tokio")]
 use tokio_io::{AsyncRead, AsyncWrite};
 
-use stream::{Action, Check, Status, Stream};
+use crate::stream::{Action, Check, Status, Stream};
 
 /// An xz encoder, or compressor.
 ///
@@ -253,7 +253,7 @@ impl<R: AsyncWrite> AsyncWrite for XzDecoder<R> {
 
 #[cfg(test)]
 mod tests {
-    use bufread::{XzDecoder, XzEncoder};
+    use crate::bufread::{XzDecoder, XzEncoder};
     use std::io::Read;
 
     #[test]

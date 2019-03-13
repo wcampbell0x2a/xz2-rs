@@ -8,8 +8,8 @@ use futures::Poll;
 #[cfg(feature = "tokio")]
 use tokio_io::{AsyncRead, AsyncWrite};
 
-use bufread;
-use stream::Stream;
+use crate::bufread;
+use crate::stream::Stream;
 
 /// A compression stream which wraps an uncompressed stream of data. Compressed
 /// data will be read from the stream.
@@ -202,7 +202,7 @@ impl<R: AsyncWrite + Read> AsyncWrite for XzDecoder<R> {
 #[cfg(test)]
 mod tests {
     use rand::{thread_rng, Rng};
-    use read::{XzDecoder, XzEncoder};
+    use crate::read::{XzDecoder, XzEncoder};
     use std::io::prelude::*;
 
     #[test]
