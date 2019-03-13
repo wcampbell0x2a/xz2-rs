@@ -13,6 +13,7 @@ Rust bindings to liblzma providing Read/Write streams as well as low-level
 in-memory encoding/decoding.
 """
 categories = ["compression", "api-bindings"]
+edition = "2018"
 
 [workspace]
 members = ["systest"]

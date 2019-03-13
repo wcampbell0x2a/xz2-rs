@@ -15,6 +15,7 @@ encoding/decoding.
 High level Rust bindings are available in the `xz2` crate.
 """
 categories = ["external-ffi-bindings"]
+edition = "2018"
 
 [dependencies]
 libc = "0.2.43"
