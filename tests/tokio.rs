@@ -1,11 +1,5 @@
 #![cfg(feature = "tokio")]
 
-extern crate futures;
-extern crate rand;
-extern crate tokio_core;
-extern crate tokio_io;
-extern crate xz2;
-
 use std::io::{Read, Write};
 use std::net::{Shutdown, TcpListener};
 use std::thread;

@@ -1,5 +1,3 @@
-extern crate xz2;
-
 use std::io::prelude::*;
 use xz2::write::XzDecoder;
 
