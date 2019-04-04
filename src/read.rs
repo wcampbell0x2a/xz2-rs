@@ -201,9 +201,10 @@ impl<R: AsyncWrite + Read> AsyncWrite for XzDecoder<R> {
 
 #[cfg(test)]
 mod tests {
-    use rand::{thread_rng, Rng};
     use crate::read::{XzDecoder, XzEncoder};
+    use rand::{thread_rng, Rng};
     use std::io::prelude::*;
+    use std::iter;
 
     #[test]
     fn smoke() {
@@ -245,7 +246,10 @@ mod tests {
         let mut result = Vec::new();
         c.read_to_end(&mut result).unwrap();
 
-        let v = thread_rng().gen_iter::<u8>().take(1024).collect::<Vec<_>>();
+        let mut rng = thread_rng();
+        let v = iter::repeat_with(|| rng.gen::<u8>())
+            .take(1024)
+            .collect::<Vec<_>>();
         for _ in 0..200 {
             result.extend(v.iter().map(|x| *x));
         }
