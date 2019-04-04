@@ -18,8 +18,8 @@ categories = ["external-ffi-bindings"]
 edition = "2018"
 
 [dependencies]
-libc = "0.2.43"
+libc = "0.2"
 
 [build-dependencies]
-cc = "1.0.24"
-pkg-config = "0.3.14"
+cc = "1.0"
+pkg-config = "0.3"
