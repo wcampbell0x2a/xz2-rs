@@ -46,18 +46,6 @@
 #![deny(missing_docs)]
 #![doc(html_root_url = "https://docs.rs/xz2/0.1")]
 
-extern crate lzma_sys;
-
-#[cfg(test)]
-extern crate quickcheck;
-#[cfg(test)]
-extern crate rand;
-#[cfg(feature = "tokio")]
-#[macro_use]
-extern crate tokio_io;
-#[cfg(feature = "tokio")]
-extern crate futures;
-
 pub mod stream;
 
 pub mod bufread;

@@ -9,7 +9,7 @@ use futures::Poll;
 #[cfg(feature = "tokio")]
 use tokio_io::{AsyncRead, AsyncWrite};
 
-use stream::{Action, Check, Status, Stream};
+use crate::stream::{Action, Check, Status, Stream};
 
 /// A compression stream which will have uncompressed data written to it and
 /// will write compressed data to an output stream.
