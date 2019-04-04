@@ -7,7 +7,7 @@ use std::io::prelude::*;
 #[cfg(feature = "tokio")]
 use futures::Poll;
 #[cfg(feature = "tokio")]
-use tokio_io::{AsyncRead, AsyncWrite};
+use tokio_io::{AsyncRead, AsyncWrite, try_nb};
 
 use crate::stream::{Action, Check, Status, Stream};
 

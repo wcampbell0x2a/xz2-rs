@@ -5,7 +5,7 @@ use std::net::{Shutdown, TcpListener};
 use std::thread;
 
 use futures::Future;
-use rand::{thread_rng, Rng};
+use rand::Rng;
 use tokio_core::net::TcpStream;
 use tokio_core::reactor::Core;
 use tokio_io::io::{copy, shutdown};
@@ -69,8 +69,8 @@ fn tcp_stream_echo_pattern() {
 
 #[test]
 fn echo_random() {
-    let v = thread_rng()
-        .gen_iter::<u8>()
+    let v = std::iter::repeat(())
+        .map(|_| rand::thread_rng().gen::<u8>())
         .take(1024 * 1024)
         .collect::<Vec<_>>();
     let mut core = Core::new().unwrap();
