@@ -53,6 +53,12 @@ fn main() {
         build.flag("-std=c99").flag("-pthread");
     }
 
+    if let Ok(s) = env::var("CARGO_CFG_TARGET_ENDIAN") {
+        if s == "big" {
+            build.define("WORDS_BIGENDIAN", None);
+        }
+    }
+
     build.compile("liblzma.a");
 }
 
