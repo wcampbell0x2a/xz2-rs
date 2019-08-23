@@ -75,17 +75,17 @@ jobs:
         echo "##[add-path]$HOME/.cargo/bin"
       if: matrix.os == 'macos-latest'
     - name: Set crt-static
-      if: crt_static == 'yes'
+      if: matrix.crt_static == 'yes'
       run: echo "##[set-env name=RUSTFLAGS]-Ctarget-features=+crt-static"
       shell: bash
     - name: Set static
-      if: static == 'yes'
+      if: matrix.static == 'yes'
       run: echo "##[set-env name=LZMA_API_STATIC]1"
       shell: bash
     - run: cargo test
     - run: cargo test --features tokio
     - run: cargo run --manifest-path systest/Cargo.toml
-      if: static == 'yes'
+      if: matrix.static == 'yes'
 
 
   rustfmt:
