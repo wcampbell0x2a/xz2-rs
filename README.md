@@ -1,7 +1,5 @@
 # xz2
 
-[![Build Status](https://dev.azure.com/alexcrichton/xz2-rs/_apis/build/status/alexcrichton.xz2-rs?branchName=master)](https://dev.azure.com/alexcrichton/xz2-rs/_build/latest?definitionId=3&branchName=master)
-
 [Documentation](https://docs.rs/xz2)
 
 Bindings to the liblzma implementation in Rust, also provides types to
