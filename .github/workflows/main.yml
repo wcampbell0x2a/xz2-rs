@@ -104,8 +104,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      with:
-        submodules: true
+        with:
+          submodules: true
       - name: Install Rust
         run: rustup update stable && rustup default stable
       - run: cargo doc --no-deps --all-features
