@@ -76,7 +76,7 @@ jobs:
       if: matrix.os == 'macos-latest'
     - name: Set crt-static
       if: matrix.crt_static == 'yes'
-      run: echo "##[set-env name=RUSTFLAGS]-Ctarget-features=+crt-static"
+      run: echo "##[set-env name=RUSTFLAGS]-Ctarget-feature=+crt-static"
       shell: bash
     - name: Set static
       if: matrix.static == 'yes'
