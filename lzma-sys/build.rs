@@ -9,7 +9,15 @@ fn main() {
 
     println!("cargo:rerun-if-env-changed=LZMA_API_STATIC");
     let want_static = env::var("LZMA_API_STATIC").is_ok();
-    if !want_static && pkg_config::probe_library("liblzma").is_ok() {
+    let msvc = target.contains("msvc");
+
+    // If a static link is desired, we compile from source.
+    // If we're compiling for MSVC, pkg-config runs a risk of picking up MinGW
+    // libraries by accident, so disable it.
+    //
+    // Otherwise check the system to see if it has an lzma library already
+    // installed that we can use.
+    if !want_static && !msvc && pkg_config::probe_library("liblzma").is_ok() {
         return;
     }
 
