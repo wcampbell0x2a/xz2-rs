@@ -820,15 +820,11 @@ impl From<Error> for io::Error {
     }
 }
 
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        "lzma data error"
-    }
-}
+impl error::Error for Error {}
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        error::Error::description(self).fmt(f)
+        "lzma data error".fmt(f)
     }
 }
 
