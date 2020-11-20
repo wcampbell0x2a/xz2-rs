@@ -30,3 +30,6 @@ tokio-core = "0.1.17"
 
 [features]
 tokio = ["tokio-io", "futures"]
+
+[package.metadata.docs.rs]
+features = ["tokio-io", "futures"]
