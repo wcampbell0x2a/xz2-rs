@@ -7,63 +7,38 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build:
-        - stable
-        - stable-static
-        - beta
-        - nightly
-        - macos
-        - macos-static
-        - win32
-        - win64
-        - win64-static
-        - win64-crt-static
-        - win32-gnu
-        - win64-gnu
         include:
-          - build: stable
-            os: ubuntu-latest
+          - os: ubuntu-latest
             rust: stable
-          - build: stable-static
-            os: ubuntu-latest
+          - os: ubuntu-latest
             rust: stable
             static: yes
-          - build: beta
-            os: ubuntu-latest
+          - os: ubuntu-latest
             rust: beta
-          - build: nightly
-            os: ubuntu-latest
+          - os: ubuntu-latest
             rust: nightly
-          - build: macos
-            os: macos-latest
+          - os: macos-latest
             rust: stable
-          - build: macos-static
-            os: macos-latest
+          - os: macos-latest
             rust: stable
             static: yes
-          - build: win32
-            os: windows-latest
+          - os: windows-latest
             rust: stable-i686-msvc
-          - build: win64
-            os: windows-latest
+          - os: windows-latest
             rust: stable-x86_64-msvc
-          - build: win64-static
-            os: windows-latest
+          - os: windows-latest
             rust: stable-x86_64-msvc
             static: yes
-          - build: win64-crt-static
-            os: windows-latest
+          - os: windows-latest
             rust: stable-x86_64-msvc
             static: yes
             crt_static: yes
-          - build: win32-gnu
-            os: windows-latest
+          - os: windows-latest
             rust: stable-i686-gnu
-          - build: win64-gnu
-            os: windows-latest
+          - os: windows-latest
             rust: stable-x86_64-gnu
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
       with:
         submodules: true
     - name: Install Rust (rustup)
@@ -87,7 +62,7 @@ jobs:
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
       with:
         submodules: true
     - name: Install Rust
@@ -98,7 +73,7 @@ jobs:
     name: Publish Documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
         with:
           submodules: true
       - name: Install Rust
