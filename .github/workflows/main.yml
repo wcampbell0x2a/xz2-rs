@@ -80,11 +80,9 @@ jobs:
         run: rustup update stable && rustup default stable
       - run: cargo doc --no-deps --all-features
       - run: cargo doc --no-deps --all-features --manifest-path lzma-sys/Cargo.toml
-      - name: Publish documentation
-        run: |
-          cd target/doc
-          git init
-          git add .
-          git -c user.name='ci' -c user.email='ci' commit -m init
-          git push -f -q https://git:${{ secrets.github_token }}@github.com/${{ github.repository }} HEAD:gh-pages
-        if: github.event_name == 'push' && github.event.ref == 'refs/heads/master'
+      - uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: target/doc
+          single-commit: true
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
